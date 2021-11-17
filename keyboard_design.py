@@ -23,6 +23,10 @@ def create_keyboard_keys():
     for i, key in enumerate(key_layout['bottom']):  # z-m
         keys.append(Button((100 * i + 100, 350), key))
     keys.append(Button((300, 450), ' ', (300, 85)))  # Spacebar, extra param for different sizing
+    keys.append(Button((1100, 150), '<-', (150, 85)))  # Backspace
+    keys.append(Button((1100, 250), 'go', (150, 85)))  # Enter
+    keys.append(Button((10, 10), '-x', (130, 85)))  # Quit
+
 
     return keys
 

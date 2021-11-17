@@ -1,6 +1,7 @@
 from cv2 import cv2  # For computer vision video capture / display
 from cvzone.HandTrackingModule import HandDetector
 import time  # To debounce keys
+from pynput.keyboard import Key, Controller  # Simulating keyboard input
 import keyboard_design
 
 
@@ -10,7 +11,7 @@ video_capture.set(3, 1280)  # Width
 video_capture.set(4, 720)  # Height
 
 detector = HandDetector(detectionCon=0.8, maxHands=2)  # Params: detector confidence threshold, max hands to detect
-
+keyboard = Controller()
 keyboard_keys = keyboard_design.create_keyboard_keys()
 
 
@@ -72,6 +73,18 @@ def main():
                     cv2.putText(img, key.text, (x + 16, y + 69), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
                     if hand_count == 2:
                         if distance < 100:
+                            if key.text == '<-':
+                                keyboard.press(Key.backspace)
+                                if final_text:
+                                    final_text.pop()
+                                continue
+                            elif key.text == 'go':
+                                keyboard.press(Key.enter)
+                                continue
+                            elif key.text == '-x':
+                                quit()
+                            else:
+                                keyboard.press(key.text)
                             cv2.rectangle(img, key.pos, (x + width, y + height), (0, 0, 255), cv2.FILLED)
                             cv2.putText(img, key.text, (x + 16, y + 69), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
                             final_text.append(key.text)
