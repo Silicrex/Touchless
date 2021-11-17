@@ -41,7 +41,7 @@ def draw_transparent_keyboard(img, keys):
     for key in keys:
         x, y = key.pos
         width, height = key.size
-        rect_color = (255, 0, 0)  # Blue-green-red ┐(￣ヘ￣)┌
+        rect_color = (255, 0, 255)  # Blue-green-red
 
 
         cvzone.cornerRect(alpha_layer, (key.pos[0], key.pos[1], key.size[0], key.size[1]), 20, rt=0)  # Corners
