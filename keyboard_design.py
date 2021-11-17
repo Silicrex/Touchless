@@ -27,7 +27,6 @@ def create_keyboard_keys():
     keys.append(Button((1100, 250), 'go', (150, 85)))  # Enter
     keys.append(Button((10, 10), '-x', (130, 85)))  # Quit
 
-
     return keys
 
 
@@ -47,13 +46,12 @@ def draw_transparent_keyboard(img, keys):
         width, height = key.size
         rect_color = (255, 0, 255)  # Blue-green-red
 
-
         cvzone.cornerRect(alpha_layer, (key.pos[0], key.pos[1], key.size[0], key.size[1]), 20, rt=0)  # Corners
         cv2.rectangle(alpha_layer, key.pos, (x + width, y + height), rect_color, cv2.FILLED)
         cv2.putText(img, key.text, (x + 16, y + 69), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
 
     out = img.copy()
-    alpha = 0.3
+    alpha = 0.2
     mask = alpha_layer.astype(bool)
     out[mask] = cv2.addWeighted(img, alpha, alpha_layer, 1 - alpha, 0)[mask]
     return out
