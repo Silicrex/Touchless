@@ -2,7 +2,10 @@ from cv2 import cv2  # For computer vision video capture / display
 from cvzone.HandTrackingModule import HandDetector
 import time  # To debounce keys
 from pynput.keyboard import Key, Controller  # Simulating keyboard input
+import win32gui  # win32gui and win32con for pinning window
+import win32con
 import keyboard_design
+import modes
 
 
 # Video capture, hand detector, keyboard design
@@ -14,8 +17,8 @@ detector = HandDetector(detectionCon=0.8, maxHands=2)  # Params: detector confid
 keyboard = Controller()
 keyboard_keys = keyboard_design.create_keyboard_keys()
 
-
 def main():
+    pinned = False
     final_text = []
     while True:
         success, img = video_capture.read()
@@ -80,6 +83,7 @@ def main():
                                 continue
                             elif key.text == 'go':
                                 keyboard.press(Key.enter)
+                                final_text.clear()
                                 continue
                             elif key.text == '-x':
                                 quit()
@@ -95,7 +99,12 @@ def main():
         cv2.rectangle(img, (50, 600), (1230, 750), (175, 0, 175), cv2.FILLED)
         cv2.putText(img, ''.join(final_text), (60, 675), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
 
-        cv2.imshow("Image", img)
+        cv2.imshow("Touchless", img)
+        if not pinned:
+            hwnd = win32gui.FindWindow(None, "Touchless")
+            print(hwnd)
+            win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 600, 50, 1280, 720, 0)
+            pinned = True
         cv2.waitKey(1)
 
 

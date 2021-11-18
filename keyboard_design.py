@@ -23,8 +23,8 @@ def create_keyboard_keys():
     for i, key in enumerate(key_layout['bottom']):  # z-m
         keys.append(Button((100 * i + 100, 350), key))
     keys.append(Button((300, 450), ' ', (300, 85)))  # Spacebar, extra param for different sizing
-    keys.append(Button((1100, 150), '<-', (150, 85)))  # Backspace
-    keys.append(Button((1100, 250), 'go', (150, 85)))  # Enter
+    keys.append(Button((330, 10), '<-', (150, 85)))  # Backspace
+    keys.append(Button((160, 10), 'go', (150, 85)))  # Enter
     keys.append(Button((10, 10), '-x', (130, 85)))  # Quit
 
     return keys
@@ -51,7 +51,7 @@ def draw_transparent_keyboard(img, keys):
         cv2.putText(img, key.text, (x + 16, y + 69), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
 
     out = img.copy()
-    alpha = 0.2
+    opacity = 0.8
     mask = alpha_layer.astype(bool)
-    out[mask] = cv2.addWeighted(img, alpha, alpha_layer, 1 - alpha, 0)[mask]
+    out[mask] = cv2.addWeighted(img, 1 - opacity, alpha_layer, opacity, 0)[mask]
     return out
