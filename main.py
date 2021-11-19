@@ -16,15 +16,20 @@ video_capture.set(4, 720)  # Height
 
 detector = HandDetector(detectionCon=0.8, maxHands=2)  # Params: detector confidence threshold, max hands to detect
 keyboard = Controller()
-keyboard_keys = keyboard_design.create_keyboard_keys()
+keyboard_uppercase = keyboard_design.create_keyboard_keys()
+keyboard_lowercase = keyboard_design.create_keyboard_keys(caps=False)
 
 
 def main():
-    cooldown_time = 0
-    color_cooldown_time = 0
+    key_cooldown = 0.15  # Cooldown for key presses in seconds
+
+    key_monotonic = 0
+    color_monotonic = 0
     key_pressed = None
     pinned = False
-    final_text = []
+    opacity = True
+    caps = True
+    live_text = []
     while True:
         success, img = video_capture.read()
         img = cv2.flip(img, 1)
@@ -32,14 +37,22 @@ def main():
         hand_count = len(hands)
         # hands = list of hands, hand object is a dict: {lmList, bbox, center, type}
 
-        img = keyboard_design.draw_transparent_keyboard(img, keyboard_keys)  # Draw keyboard
+        if caps:
+            keyboard_layout = keyboard_uppercase
+        else:
+            keyboard_layout = keyboard_lowercase
+
+        if opacity:
+            img = keyboard_design.draw_transparent_keyboard(img, keyboard_layout)  # Draw keyboard
+        else:
+            img = keyboard_design.draw_keyboard(img, keyboard_layout)
 
         if hand_count == 1:
             hand1 = hands[0]
             landmarks = hand1['lmList']
             pointer1 = landmarks[8]
 
-            for key in keyboard_keys:
+            for key in keyboard_layout:
                 x, y = key.pos
                 width, height = key.size
                 if x < pointer1[0] < x + width and y < pointer1[1] < y + height:
@@ -72,45 +85,44 @@ def main():
             distance, _, _ = detector.findDistance(right_thumb, right_pinky, img)
             print(distance)
 
-            for key in keyboard_keys:
+            for key in keyboard_layout:
                 x, y = key.pos
                 width, height = key.size
                 if x < left_pointer[0] < x + width and y < left_pointer[1] < y + height:
-                    if time.monotonic() > color_cooldown_time or key_pressed != key.text:
+                    if time.monotonic() > color_monotonic or key_pressed != key.text:
                         cv2.rectangle(img, key.pos, (x + width, y + height), (0, 255, 0), cv2.FILLED)
-                        color_cooldown_time = 0
+                        color_monotonic = 0
                     else:
                         cv2.rectangle(img, (key.pos[0] - 10, key.pos[1] - 10), (x + width + 10, y + height + 10),
                                       (0, 0, 255), cv2.FILLED)
-                        cv2.putText(img, key.text, (x + 16, y + 69), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
                     cv2.putText(img, key.text, (x + 16, y + 69), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
                     if hand_count == 2:
-                        if distance < 111:
-                            if time.monotonic() > cooldown_time:
+                        if distance < 105:
+                            if time.monotonic() > key_monotonic:
                                 playsound('press.mp3', False)
-                                cooldown_time = time.monotonic() + 0.15
+                                key_monotonic = time.monotonic() + key_cooldown
                                 if key.text == '<-':
                                     keyboard.press(Key.backspace)
-                                    if final_text:
-                                        final_text.pop()
-                                    continue
+                                    if live_text:
+                                        live_text.pop()
                                 elif key.text == 'go':
                                     keyboard.press(Key.enter)
-                                    final_text.clear()
-                                    continue
+                                    live_text.clear()
+                                elif key.text == 'op':
+                                    opacity = not opacity  # Toggle
+                                elif key.text == '^^':
+                                    caps = not caps  # Toggle
                                 elif key.text == '-x':
                                     quit()
                                 else:
                                     keyboard.press(key.text)
-                                cv2.rectangle(img, (key.pos[0] - 10, key.pos[1] - 10), (x + width + 10, y + height + 10), (0, 0, 255), cv2.FILLED)
-                                cv2.putText(img, key.text, (x + 16, y + 69), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
-                                color_cooldown_time = time.monotonic() + 0.15
-                                key_pressed = key.text
-                                final_text.append(key.text)
-                                if len(final_text) > 24:
-                                    final_text.pop(0)
+                                    key_pressed = key.text
+                                    live_text.append(key.text)
+                                    if len(live_text) > 24:
+                                        live_text.pop(0)
+                                color_monotonic = time.monotonic() + 0.15
         cv2.rectangle(img, (50, 600), (1230, 750), (175, 0, 175), cv2.FILLED)
-        cv2.putText(img, ''.join(final_text), (60, 675), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
+        cv2.putText(img, ''.join(live_text), (60, 675), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
 
         cv2.imshow("Touchless", img)
         if not pinned:

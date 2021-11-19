@@ -10,22 +10,35 @@ class Button:
         self.size = size
 
 
-def create_keyboard_keys():
+def create_keyboard_keys(caps=True):
     key_layout = {'top': ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                   'middle': ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
                   'bottom': ['Z', 'X', 'C', 'V', 'B', 'N', 'M']}
+    key_layout2 = [['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+                  ['Z', 'X', 'C', 'V', 'B', 'N', 'M']]
 
     keys = []
-    for i, key in enumerate(key_layout['top']):  # Top row of letters, q-p
-        keys.append(Button((100 * i + 50, 150), key))  # Params for position
-    for i, key in enumerate(key_layout['middle']):  # a-l
-        keys.append(Button((100 * i + 75, 250), key))
-    for i, key in enumerate(key_layout['bottom']):  # z-m
-        keys.append(Button((100 * i + 100, 350), key))
+    for i in range(len(key_layout2)):
+        for j, key in enumerate(key_layout2[i]):
+            x_offset = 50 + 25 * i
+            y_offset = 100 * i
+            if not caps:
+                key = key.lower()
+            keys.append(Button((100 * j + x_offset, 150 + y_offset), key))
+    # Condensed version of ..
+    # for i, key in enumerate(key_layout['top']):  # Top row of letters, q-p
+    #     keys.append(Button((100 * i + 50, 150), key))  # Params for position
+    # for i, key in enumerate(key_layout['middle']):  # a-l
+    #     keys.append(Button((100 * i + 75, 250), key))
+    # for i, key in enumerate(key_layout['bottom']):  # z-m
+    #     keys.append(Button((100 * i + 100, 350), key))
     keys.append(Button((300, 450), ' ', (300, 85)))  # Spacebar, extra param for different sizing
     keys.append(Button((330, 10), '<-', (150, 85)))  # Backspace
     keys.append(Button((160, 10), 'go', (150, 85)))  # Enter
     keys.append(Button((10, 10), '-x', (130, 85)))  # Quit
+    keys.append(Button((850, 10), 'op', (130, 85)))  # Opacity toggle
+    keys.append(Button((10, 450), '^^', (145, 85)))  # Caps toggle
 
     return keys
 
@@ -34,6 +47,7 @@ def draw_keyboard(img, keys):  # Takes img, draws keys onto it
     for key in keys:
         x, y = key.pos
         width, height = key.size
+        cvzone.cornerRect(img, (key.pos[0], key.pos[1], key.size[0], key.size[1]), 20, rt=0)  # Corners
         cv2.rectangle(img, key.pos, (x + width, y + height), (255, 0, 255), cv2.FILLED)
         cv2.putText(img, key.text, (x + 16, y + 69), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
     return img
