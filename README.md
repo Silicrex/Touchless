@@ -1,4 +1,6 @@
 # Touchless
+My take on Murtaza's Workshop's cv keyboard! https://www.youtube.com/watch?v=jzXZVFqEE2I
+
 Goals: Touchless keyboard interaction via computer vision and speech recognition
 
 One-handed mode: Test selecting keys
@@ -10,4 +12,4 @@ Two-handed mode:
 
 # Thanks
 - Typing sound from Zapsplat
-- Murtaza's workshop for inspiration and CV tutorials
+- Murtaza's workshop for inspiration and CV tutorials!
